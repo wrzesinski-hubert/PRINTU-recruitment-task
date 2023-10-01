@@ -1,41 +1,55 @@
 import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import createSagaMiddleware from "redux-saga";
 import { rootSaga } from "./sagas";
+import { projectDescriptionType } from "../types/types";
 
 const sagaMiddleware = createSagaMiddleware();
 
-// Define the initial state
-const initialState = {
-  inputId: "",
+const initialState: {
+  inputID: string;
+  data: projectDescriptionType | undefined;
+  loading: boolean;
+  invalidType: boolean;
+  error: boolean;
+} = {
+  inputID: "",
   data: undefined,
+  loading: false,
+  invalidType: false,
+  error: false,
 };
 
-// Create a Redux slice with reducers and actions
 const appSlice = createSlice({
-  name: "app",
+  name: "canvasData",
   initialState,
   reducers: {
     setInputId: (state, action: PayloadAction<string>) => {
-      state.inputId = action.payload;
+      state.inputID = action.payload;
     },
-    setData: (state, action: PayloadAction<any>) => {
+    setData: (state, action: PayloadAction<projectDescriptionType>) => {
       state.data = action.payload;
+      state.invalidType = !action.payload.project.items.every(
+        (item) => item.height > 0 && item.width > 0
+      );
     },
     fetchData: (state, action: PayloadAction<string>) => {},
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setError: (state, action: PayloadAction<boolean>) => {
+      state.error = action.payload;
+    },
   },
 });
 
-// Create the Redux store
 const store = configureStore({
   reducer: appSlice.reducer,
   middleware: [sagaMiddleware],
 });
 
-// Export the store
 export default store;
 export type RootState = ReturnType<typeof store.getState>;
+export const { setInputId, setData, fetchData, setLoading, setError } =
+  appSlice.actions;
 
-// Export actions
-export const { setInputId, setData, fetchData } = appSlice.actions;
-// Run the Redux Saga
 sagaMiddleware.run(rootSaga);
