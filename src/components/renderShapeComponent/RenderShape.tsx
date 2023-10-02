@@ -4,7 +4,6 @@ const RenderShape = ({
   y,
   rotation,
   currentBoundingBox,
-  index,
 }: {
   children: JSX.Element;
   x: number;
@@ -16,10 +15,9 @@ const RenderShape = ({
     height: number;
     width: number;
   };
-  index: number;
 }) => {
   return (
-    <g key={index}>
+    <g>
       {children}
       <circle fill="#FFFFFF" cx={x} cy={y} r="4"></circle>
       <text x={x + 8} y={y} fill="#FFFFFF">
