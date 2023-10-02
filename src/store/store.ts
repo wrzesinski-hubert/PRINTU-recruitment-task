@@ -10,13 +10,13 @@ const initialState: {
   data: projectDescriptionType | undefined;
   loading: boolean;
   invalidType: boolean;
-  error: boolean;
+  error?: { error: number; message: string };
 } = {
   inputID: "",
   data: undefined,
   loading: false,
   invalidType: false,
-  error: false,
+  error: undefined,
 };
 
 const appSlice = createSlice({
@@ -36,7 +36,10 @@ const appSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
-    setError: (state, action: PayloadAction<boolean>) => {
+    setError: (
+      state,
+      action: PayloadAction<{ error: number; message: string } | undefined>
+    ) => {
       state.error = action.payload;
     },
   },

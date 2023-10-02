@@ -8,6 +8,7 @@ function App() {
   const dispatch = useDispatch();
   const projectDescription = useSelector((state: RootState) => state.data);
   const error = useSelector((state: RootState) => state.error);
+  const invalidType = useSelector((state: RootState) => state.invalidType);
   const loading = useSelector((state: RootState) => state.loading);
 
   const [projectID, setProjectID] = useState("");
@@ -27,45 +28,6 @@ function App() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProjectID(e.target.value);
-  };
-
-  const RenderShape = ({
-    children,
-    x,
-    y,
-    rotation,
-    currentBoundingBox,
-  }: {
-    children: JSX.Element;
-    x: number;
-    y: number;
-    rotation: number;
-    currentBoundingBox?: {
-      x: number;
-      y: number;
-      height: number;
-      width: number;
-    };
-  }) => {
-    return (
-      <>
-        {children}
-        <circle fill="#FFFFFF" cx={x} cy={y} r="4"></circle>
-        <text x={x + 8} y={y} fill="#FFFFFF">
-          <tspan>{rotation}°</tspan>
-        </text>
-        <rect
-          x={currentBoundingBox?.x}
-          y={currentBoundingBox?.y}
-          width={currentBoundingBox?.width}
-          height={currentBoundingBox?.height}
-          fill="none"
-          strokeWidth="2"
-          strokeOpacity="0.4"
-          stroke="#FF0000"
-        />
-      </>
-    );
   };
 
   useEffect(() => {
@@ -90,6 +52,47 @@ function App() {
     }
   }, [projectDescription]);
 
+  const RenderShape = ({
+    children,
+    x,
+    y,
+    rotation,
+    currentBoundingBox,
+    index,
+  }: {
+    children: JSX.Element;
+    x: number;
+    y: number;
+    rotation: number;
+    currentBoundingBox?: {
+      x: number;
+      y: number;
+      height: number;
+      width: number;
+    };
+    index: number;
+  }) => {
+    return (
+      <g key={index}>
+        {children}
+        <circle fill="#FFFFFF" cx={x} cy={y} r="4"></circle>
+        <text x={x + 8} y={y} fill="#FFFFFF">
+          <tspan>{rotation}°</tspan>
+        </text>
+        <rect
+          x={currentBoundingBox?.x}
+          y={currentBoundingBox?.y}
+          width={currentBoundingBox?.width}
+          height={currentBoundingBox?.height}
+          fill="none"
+          strokeWidth="2"
+          strokeOpacity="0.4"
+          stroke="#FF0000"
+        />
+      </g>
+    );
+  };
+
   return (
     <div className="App">
       <div className="inputWrapper">
@@ -105,7 +108,7 @@ function App() {
       <div className="canvasWrapper">
         {loading ? (
           "⌛Loading⌛"
-        ) : projectDescription ? (
+        ) : projectDescription && !invalidType && !error ? (
           <svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
             <svg
               viewBox={`0 0 ${projectDescription.project.width} ${projectDescription.project.height}`}
@@ -119,54 +122,50 @@ function App() {
                   switch (type) {
                     case "rectangle":
                       return (
-                        <g key={index}>
-                          <RenderShape
-                            x={x}
-                            y={y}
-                            rotation={rotation}
-                            currentBoundingBox={currentBoundingBox}
-                          >
-                            <rect
-                              transform={`
+                        <RenderShape
+                          x={x}
+                          y={y}
+                          rotation={rotation}
+                          currentBoundingBox={currentBoundingBox}
+                          index={index}
+                        >
+                          <rect
+                            transform={`
                           translate(${x}, ${y}) 
                           rotate(${rotation}) 
                           translate(-${width / 2}, -${height / 2})`}
-                              width={width}
-                              height={height}
-                              style={{
-                                fill: color,
-                              }}
-                            />
-                          </RenderShape>
-                        </g>
+                            width={width}
+                            height={height}
+                            style={{
+                              fill: color,
+                            }}
+                          />
+                        </RenderShape>
                       );
                     case "ellipse":
                       return (
-                        <g key={index}>
-                          {
-                            <RenderShape
-                              x={x}
-                              y={y}
-                              rotation={rotation}
-                              currentBoundingBox={currentBoundingBox}
-                            >
-                              <ellipse
-                                transform={`
+                        <RenderShape
+                          x={x}
+                          y={y}
+                          rotation={rotation}
+                          currentBoundingBox={currentBoundingBox}
+                          index={index}
+                        >
+                          <ellipse
+                            transform={`
                           translate(${x}, ${y}) 
                           rotate(${rotation}) 
                           translate(-${width / 2}, -${height / 2})
                           `}
-                                cx={width / 2}
-                                cy={height / 2}
-                                rx={width / 2}
-                                ry={height / 2}
-                                style={{
-                                  fill: color,
-                                }}
-                              />
-                            </RenderShape>
-                          }
-                        </g>
+                            cx={width / 2}
+                            cy={height / 2}
+                            rx={width / 2}
+                            ry={height / 2}
+                            style={{
+                              fill: color,
+                            }}
+                          />
+                        </RenderShape>
                       );
                     default:
                       break;
@@ -177,6 +176,8 @@ function App() {
           </svg>
         ) : error ? (
           <>ERROR</>
+        ) : invalidType ? (
+          <>INVALID DATA TYPE</>
         ) : (
           <>EMPTY</>
         )}

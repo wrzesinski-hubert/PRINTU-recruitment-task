@@ -17,6 +17,7 @@ function* fetchAndSetData(
   action: ReturnType<typeof fetchData>
 ): Generator<CallEffect | PutEffect, void, any> {
   yield put(setLoading(true));
+  yield put(setError(undefined));
   const { payload: id } = action;
   if (id === "") {
     const randomId = yield call(getRandomIdAsync);
