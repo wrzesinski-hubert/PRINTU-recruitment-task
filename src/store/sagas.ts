@@ -30,9 +30,7 @@ function* fetchAndSetData(
         `http://recruitment01.vercel.app/api/project/${id}`
       );
       const data = yield response.json();
-      response.status === 500 || response.status === 404
-        ? yield put(setError(data))
-        : yield put(setData(data));
+      response.ok ? yield put(setData(data)) : yield put(setError(data));
     } catch (error) {
       console.error("Error fetching data:", error);
     }

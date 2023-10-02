@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import "./App.css";
+import "./style.css";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "./store/store";
-import { fetchData } from "./store/store";
+import { RootState } from "../../store/store";
+import { fetchData } from "../../store/store";
+import { calculateBoundingBox } from "../../utils/utils";
+import RenderShape from "../renderShapeComponent/RenderShape";
 
-function App() {
+function Canvas() {
   const dispatch = useDispatch();
   const projectDescription = useSelector((state: RootState) => state.data);
   const error = useSelector((state: RootState) => state.error);
   const invalidType = useSelector((state: RootState) => state.invalidType);
   const loading = useSelector((state: RootState) => state.loading);
 
-  const [projectID, setProjectID] = useState("");
+  const [projectID, setProjectID] = useState<string>("");
   const [boundingBoxes, setBoundingBoxes] = useState<
     | {
         x: number;
@@ -33,67 +35,15 @@ function App() {
     if (projectDescription) {
       const boxes = projectDescription.project.items.map(
         ({ x, y, width, height, rotation }) => {
-          const radians = (rotation * Math.PI) / 180;
-          const cos = Math.abs(Math.cos(radians));
-          const sin = Math.abs(Math.sin(radians));
-          const boxWidth = width * cos + height * sin;
-          const boxHeight = width * sin + height * cos;
-
-          return {
-            x: x - boxWidth / 2,
-            y: y - boxHeight / 2,
-            width: boxWidth,
-            height: boxHeight,
-          };
+          return calculateBoundingBox(rotation, width, height, x, y);
         }
       );
       setBoundingBoxes(boxes);
     }
   }, [projectDescription]);
 
-  const RenderShape = ({
-    children,
-    x,
-    y,
-    rotation,
-    currentBoundingBox,
-    index,
-  }: {
-    children: JSX.Element;
-    x: number;
-    y: number;
-    rotation: number;
-    currentBoundingBox?: {
-      x: number;
-      y: number;
-      height: number;
-      width: number;
-    };
-    index: number;
-  }) => {
-    return (
-      <g key={index}>
-        {children}
-        <circle fill="#FFFFFF" cx={x} cy={y} r="4"></circle>
-        <text x={x + 8} y={y} fill="#FFFFFF">
-          <tspan>{rotation}°</tspan>
-        </text>
-        <rect
-          x={currentBoundingBox?.x}
-          y={currentBoundingBox?.y}
-          width={currentBoundingBox?.width}
-          height={currentBoundingBox?.height}
-          fill="none"
-          strokeWidth="2"
-          strokeOpacity="0.4"
-          stroke="#FF0000"
-        />
-      </g>
-    );
-  };
-
   return (
-    <div className="App">
+    <div className="CanvasWrapper">
       <div className="inputWrapper">
         Project ID:
         <input
@@ -117,17 +67,18 @@ function App() {
               {projectDescription.project.items.map(
                 ({ type, x, y, width, height, color, rotation }, index) => {
                   const currentBoundingBox = boundingBoxes[index];
+                  const commonProps = {
+                    x,
+                    y,
+                    rotation,
+                    currentBoundingBox,
+                    index,
+                    key: index,
+                  };
                   switch (type) {
                     case "rectangle":
                       return (
-                        <RenderShape
-                          x={x}
-                          y={y}
-                          rotation={rotation}
-                          currentBoundingBox={currentBoundingBox}
-                          index={index}
-                          key={index}
-                        >
+                        <RenderShape {...commonProps}>
                           <rect
                             transform={`
                           translate(${x}, ${y}) 
@@ -143,14 +94,7 @@ function App() {
                       );
                     case "ellipse":
                       return (
-                        <RenderShape
-                          x={x}
-                          y={y}
-                          rotation={rotation}
-                          currentBoundingBox={currentBoundingBox}
-                          index={index}
-                          key={index}
-                        >
+                        <RenderShape {...commonProps}>
                           <ellipse
                             transform={`
                           translate(${x}, ${y}) 
@@ -186,4 +130,4 @@ function App() {
   );
 }
 
-export default App;
+export default Canvas;
