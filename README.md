@@ -11,3 +11,4 @@ $ npm install
 # start app
 $ npm start
 ```
+![image](https://github.com/wrzesinski-hubert/PRINTU-recruitment-task/assets/32976056/23378d03-65b3-4132-b09e-e9571158aed1)
