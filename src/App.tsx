@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./store/store";
@@ -19,8 +19,7 @@ function App() {
         width: number;
         height: number;
       }[]
-    | undefined
-  >(undefined);
+  >([]);
 
   const handleButtonClick = () => {
     dispatch(fetchData(projectID));
@@ -117,8 +116,7 @@ function App() {
             >
               {projectDescription.project.items.map(
                 ({ type, x, y, width, height, color, rotation }, index) => {
-                  const currentBoundingBox =
-                    boundingBoxes && boundingBoxes[index];
+                  const currentBoundingBox = boundingBoxes[index];
                   switch (type) {
                     case "rectangle":
                       return (
@@ -128,6 +126,7 @@ function App() {
                           rotation={rotation}
                           currentBoundingBox={currentBoundingBox}
                           index={index}
+                          key={index}
                         >
                           <rect
                             transform={`
@@ -150,6 +149,7 @@ function App() {
                           rotation={rotation}
                           currentBoundingBox={currentBoundingBox}
                           index={index}
+                          key={index}
                         >
                           <ellipse
                             transform={`

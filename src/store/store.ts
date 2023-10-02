@@ -7,16 +7,14 @@ const sagaMiddleware = createSagaMiddleware();
 
 const initialState: {
   inputID: string;
-  data: projectDescriptionType | undefined;
+  data?: projectDescriptionType;
   loading: boolean;
   invalidType: boolean;
   error?: { error: number; message: string };
 } = {
   inputID: "",
-  data: undefined,
   loading: false,
   invalidType: false,
-  error: undefined,
 };
 
 const appSlice = createSlice({
