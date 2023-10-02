@@ -72,7 +72,6 @@ function Canvas() {
                     y,
                     rotation,
                     currentBoundingBox,
-                    index,
                     key: index,
                   };
                   switch (type) {
